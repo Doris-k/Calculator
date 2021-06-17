@@ -179,15 +179,13 @@ public class MainActivity extends AppCompatActivity {
                     multiply=false;
                 }
                 if(divide==true){
-                    if(var1==0){
-                    ans.setText(var1/var2+"");
-                    divide=false;
-                    }else{
+                    if(var2==0){
                         ans.setText("除数不能为0");
+                    }else{
+                        ans.setText(var1/var2+"");
+                        divide=false;
                     }
-
                 }
-
             }
         });
         bclear.setOnClickListener(new View.OnClickListener() {
