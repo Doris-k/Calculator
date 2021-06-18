@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    boolean add,minus,multiply,divide;
     private String formula = "";
     private boolean end = false;
-    private int countOperate=2;
+    private int count=2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }switch (current) {
             case "clear":  //如果为clear则清零
                 formula = "";
-                countOperate = 0;
+                count = 0;
                 break;
             case "BACK":  //如果点击退格
                 if (formula.length() > 1) { //算式长度大于1
@@ -254,30 +254,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                     if (tmp >= '0' && tmp <= '9') { //最后一个字符为数字，则识别数赋值为0
-                        countOperate = 0;
-                    } else if (tmp == tmpFront && tmpFront != '.') countOperate = 2; //如果为+-*/，赋值为2
-                    else if (tmpFront == '.') countOperate = 1; //如果前面有小数点赋值为1
+                        count = 0;
+                    } else if (tmp == tmpFront && tmpFront != '.') count = 2; //如果为+-*/，赋值为2
+                    else if (tmpFront == '.') count = 1; //如果前面有小数点赋值为1
                 } else if (formula.length() == 1) {
                     formula = "";
                 }
                 break;
             case ".":
-                if (formula.equals("") || countOperate == 2) {
+                if (formula.equals("") || count == 2) {
                     formula += "0" + current;
-                    countOperate = 1;  //小数点按过之后赋值为1
+                    count = 1;  //小数点按过之后赋值为1
                 }
-                if (countOperate == 0) {
+                if (count == 0) {
                     formula += ".";
-                    countOperate = 1;
+                    count = 1;
                 }
                 break;
             case "+":
             case "-":
             case "*":
             case "/":
-                if (countOperate == 0) {
+                if (count == 0) {
                     formula += current;
-                    countOperate = 2;  //  +-*/按过之后赋值为2
+                    count = 2;  //  +-*/按过之后赋值为2
                 }
                 break;
             case "=":  //按下=时，计算结果并显示
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
                 formula += current;
-                if (countOperate == 2 || countOperate == 1) countOperate = 0;
+                if (count == 2 || count == 1) count = 0;
                 break;
         }
         ans.setText(formula); //显示出来
