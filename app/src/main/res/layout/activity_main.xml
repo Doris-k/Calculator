@@ -173,7 +173,7 @@
             android:layout_height="63dp"
             android:text="clear"
             android:textSize="30dp"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="20dp"
             />
 
         <Button
