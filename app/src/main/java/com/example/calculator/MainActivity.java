@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
    private TextView  ans;
 //    double var1,var2;
 //    boolean add,minus,multiply,divide;
-    private String expression = "";
+    private String formula = "";
     private boolean end = false;
     private int countOperate=2;
 
@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //此为第一版，无法实现四则运算，下面进行改进
+        //注释部分为第一版，只能实现a+b、a-b、a*b、a/b四种简单运算，以及清空功能，无法进行有优先级的类似a+b*c的算式的计算
+        // 注释下面是改进后第二版，可以实现有优先级的计算，加入了输错回退按钮
         //获取控件按钮
 //        b1=(Button)findViewById(R.id.btn1);
 //        b2=(Button)findViewById(R.id.btn2);
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-   //改进算法采用switch case，能够进行四则运算
+   //改进算法采用switch case，能够进行复杂运算
     //参考了CSDN-疯子侠-用Android实现计算器
     //参考了CSDN-涂涂-ing-使用Android 实现计算器功能
     @Override
@@ -233,41 +234,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button button = (Button)v.findViewById(id);
         String current = button.getText().toString();
         if(end){ //如果上一次算式已经结束，则先清零
-            expression = "";
+            formula = "";
             end = false;
         }switch (current) {
-            case "clear":  //如果为CLEAR则清零
-                expression = "";
+            case "clear":  //如果为clear则清零
+                formula = "";
                 countOperate = 0;
                 break;
             case "BACK":  //如果点击退格
-                if (expression.length() > 1) { //算式长度大于1
-                    expression = expression.substring(0, expression.length() - 1);//退一格
-                    int i = expression.length() - 1;
-                    char tmp = expression.charAt(i); //获得最后一个字符
+                if (formula.length() > 1) { //算式长度大于1
+                    formula = formula.substring(0, formula.length() - 1);//退一格
+                    int i = formula.length() - 1;
+                    char tmp = formula.charAt(i); //获得最后一个字符
                     char tmpFront = tmp;
                     for (; i >= 0; i--) { //向前搜索最近的 +-*/和.，并退出
-                        tmpFront = expression.charAt(i);
+                        tmpFront = formula.charAt(i);
                         if (tmpFront == '.' || tmpFront == '+' || tmpFront == '-' || tmpFront == '*' || tmpFront == '/') {
                             break;
                         }
                     }
-                       //Toast.makeText(this, "tmp = "+tmp, Toast.LENGTH_SHORT).show();
                     if (tmp >= '0' && tmp <= '9') { //最后一个字符为数字，则识别数赋值为0
                         countOperate = 0;
                     } else if (tmp == tmpFront && tmpFront != '.') countOperate = 2; //如果为+-*/，赋值为2
                     else if (tmpFront == '.') countOperate = 1; //如果前面有小数点赋值为1
-                } else if (expression.length() == 1) {
-                    expression = "";
+                } else if (formula.length() == 1) {
+                    formula = "";
                 }
                 break;
             case ".":
-                if (expression.equals("") || countOperate == 2) {
-                    expression += "0" + current;
+                if (formula.equals("") || countOperate == 2) {
+                    formula += "0" + current;
                     countOperate = 1;  //小数点按过之后赋值为1
                 }
                 if (countOperate == 0) {
-                    expression += ".";
+                    formula += ".";
                     countOperate = 1;
                 }
                 break;
@@ -276,36 +276,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case "*":
             case "/":
                 if (countOperate == 0) {
-                    expression += current;
+                    formula += current;
                     countOperate = 2;  //  +-*/按过之后赋值为2
                 }
                 break;
             case "=":  //按下=时，计算结果并显示
                 double result = (double) Math.round(count() * 100) / 100;
-                expression += "=" + result;
+                formula += "=" + result;
                 end = true; //此次计算结束
 
                 break;
             default: //此处是当退格出现2+0时，用current的值替代0
-                if (expression.length() >= 1) {
-                    char tmp1 = expression.charAt(expression.length() - 1);
-                    if (tmp1 == '0' && expression.length() == 1) {
-                        expression = expression.substring(0, expression.length() - 1);
+                if (formula.length() >= 1) {
+                    char tmp1 = formula.charAt(formula.length() - 1);
+                    if (tmp1 == '0' && formula.length() == 1) {
+                        formula = formula.substring(0, formula.length() - 1);
                     } else {
                         if (tmp1 == '0') {
-                            char tmp2 = expression.charAt(expression.length() - 2);
+                            char tmp2 = formula.charAt(formula.length() - 2);
                             if (tmp2 == '+' || tmp2 == '-' || tmp2 == '*' || tmp2 == '/') {
-                                expression = expression.substring(0, expression.length() - 1);
+                                formula = formula.substring(0, formula.length() - 1);
                             }
                         }
                     }
                 }
-                expression += current;
+                formula += current;
                 if (countOperate == 2 || countOperate == 1) countOperate = 0;
                 break;
         }
-        //Toast.makeText(this, "countOperate:"+countOperate, Toast.LENGTH_SHORT).show();
-        ans.setText(expression); //显示出来
+        ans.setText(formula); //显示出来
     }
     //计算逻辑，求expression表达式的值
     private double count(){
@@ -314,8 +313,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         char tmp=0;
         int operate = 1; //识别+-*/，为+时为正数，为-时为负数，为×时为-2/2,为/时为3/-3;
         boolean point = false;
-        for(int i=0;i<expression.length();i++){ //遍历表达式
-            tmp = expression.charAt(i);
+        for(int i=0;i<formula.length();i++){ //遍历表达式
+            tmp = formula.charAt(i);
             if(tmp=='.'){ //因为可能出现小数，此处进行判断是否有小数出现
                 point = true;
                 lowNum = 0.1;
@@ -325,8 +324,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }else{ //计算/
                     tNum /= num;
                 }
-                   //Toast.makeText(this, "tNum = "+tNum, Toast.LENGTH_SHORT).show();
-                if(operate<0){ //累加入最终的结果
+
+                if(operate<0){ //最终的结果
                     result -= tNum;
                 }else{
                     result += tNum;
@@ -369,7 +368,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else{
             tNum /= num;
         }
-            //Toast.makeText(this, "tNum = "+tNum, Toast.LENGTH_SHORT).show();
         if(operate<0){
             result -= tNum;
         }else{
