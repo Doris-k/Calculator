@@ -12,12 +12,14 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:hint="Result"
         android:id="@+id/answer"
         android:textSize="25dp"/>
+
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -172,8 +174,7 @@
             android:layout_width="wrap_content"
             android:layout_height="63dp"
             android:text="clear"
-            android:textSize="30dp"
-            android:layout_marginLeft="20dp"
+            android:textSize="20dp"
             />
 
         <Button
@@ -182,7 +183,15 @@
             android:layout_height="63dp"
             android:layout_marginBottom="20dp"
             android:text="BACK"
-            android:textSize="30dp"/>
+            android:textSize="20dp"/>
+        <Button
+            android:id="@+id/bhistory"
+            android:layout_width="match_parent"
+            android:layout_height="63dp"
+            android:layout_marginBottom="20dp"
+            android:text="History"
+            android:textSize="20dp"/>
+
     </LinearLayout>
 
 

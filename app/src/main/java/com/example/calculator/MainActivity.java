@@ -1,30 +1,41 @@
 package com.example.calculator;
 
-import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
     private static final String TAG = "MainActivity";
-    private Button[] buttons = new Button[18];
-    private int[] ids = new int[]{R.id.btn1,R.id.btn2,R.id.btn3,R.id.btn4,R.id.btn5,R.id.btn6,R.id.btn7,
-            R.id.btn8,R.id.btn9,R.id.btn0,R.id.btnadd,R.id.btnminus,R.id.btnmultiply,R.id.btndivide,R.id.btnpoint,
-            R.id.btnequal,R.id.btnback,R.id.btnclear
+    private Button[] buttons = new Button[19];
+    private int[] ids = new int[]{R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.btn5, R.id.btn6, R.id.btn7,
+            R.id.btn8, R.id.btn9, R.id.btn0, R.id.btnadd, R.id.btnminus, R.id.btnmultiply, R.id.btndivide, R.id.btnpoint,
+            R.id.btnequal, R.id.btnback, R.id.btnclear, R.id.bhistory
     };
-//    Button b1,b2,b3,b4,b5,b6,b7,b8,b9,b0,bpoint,badd,bminus,bmultiply,bdivide,bequal,bclear,bback;
-   private TextView  ans;
-//    double var1,var2;
+    //    Button b1,b2,b3,b4,b5,b6,b7,b8,b9,b0,bpoint,badd,bminus,bmultiply,bdivide,bequal,bclear,bback;
+    //    double var1,var2;
 //    boolean add,minus,multiply,divide;
+    private TextView ans;
     private String formula = "";
     private boolean end = false;
-    private int count=2;
+    private int count = 2;
+    public static ArrayList<enity> enities;
+
+  
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,36 +218,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                ans.setText("");
 //            }
 //        });
-//        bback.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.i(TAG,"run:........"+"回退");
-//
-//            }
-//        });
 
-        for(int i=0;i<ids.length;i++){
-            buttons[i] = (Button)findViewById(ids[i]);
+
+
+
+        for (int i = 0; i < ids.length; i++) {
+            buttons[i] = (Button) findViewById(ids[i]);
             buttons[i].setOnClickListener(this);
         }
-        ans= (TextView)findViewById(R.id.answer);
+        ans = (TextView) findViewById(R.id.answer);
+        enities = new ArrayList<>();
+
     }
-
-
-
-
-   //改进算法采用switch case，能够进行复杂运算
+    //改进算法采用switch case，能够进行复杂运算
     //参考了CSDN-疯子侠-用Android实现计算器
     //参考了CSDN-涂涂-ing-使用Android 实现计算器功能
+
+
+
     @Override
     public void onClick(View v) {
+
+
         int id = v.getId();
-        Button button = (Button)v.findViewById(id);
+        Button button = (Button) v.findViewById(id);
         String current = button.getText().toString();
-        if(end){ //如果上一次算式已经结束，则先清零
+        if (end) { //如果上一次算式已经结束，则先清零
             formula = "";
             end = false;
-        }switch (current) {
+        }
+        switch (current) {
             case "clear":  //如果为clear则清零
                 formula = "";
                 count = 0;
@@ -284,8 +295,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 double result = (double) Math.round(count() * 100) / 100;
                 formula += "=" + result;
                 end = true; //此次计算结束
+                enities.add(new enity(ans.getText().toString()+"="+result));
 
                 break;
+
+            case "History":
+                Intent intent = new Intent(getApplicationContext(), History.class);
+                startActivity(intent);
+                return;
+
             default: //此处是当退格出现2+0时，用current的值替代0
                 if (formula.length() >= 1) {
                     char tmp1 = formula.charAt(formula.length() - 1);
@@ -303,78 +321,90 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 formula += current;
                 if (count == 2 || count == 1) count = 0;
                 break;
+
+
         }
         ans.setText(formula); //显示出来
+
+
     }
+
     //计算逻辑，求expression表达式的值
-    private double count(){
-        double result=0;
-        double tNum=1,lowNum=0.1,num=0;
-        char tmp=0;
+    private double count() {
+        double result = 0;
+        double tNum = 1, lowNum = 0.1, num = 0;
+        char tmp = 0;
         int operate = 1; //识别+-*/，为+时为正数，为-时为负数，为×时为-2/2,为/时为3/-3;
         boolean point = false;
-        for(int i=0;i<formula.length();i++){ //遍历表达式
+        for (int i = 0; i < formula.length(); i++) { //遍历表达式
             tmp = formula.charAt(i);
-            if(tmp=='.'){ //因为可能出现小数，此处进行判断是否有小数出现
+            if (tmp == '.') { //因为可能出现小数，此处进行判断是否有小数出现
                 point = true;
                 lowNum = 0.1;
-            }else if(tmp=='+'||tmp=='-'){
-                if(operate!=3&&operate!=-3){ //此处判断通用，适用于+-*
+            } else if (tmp == '+' || tmp == '-') {
+                if (operate != 3 && operate != -3) { //此处判断通用，适用于+-*
                     tNum *= num;
-                }else{ //计算/
+                } else { //计算/
                     tNum /= num;
                 }
 
-                if(operate<0){ //最终的结果
+                if (operate < 0) { //最终的结果
                     result -= tNum;
-                }else{
+                } else {
                     result += tNum;
                 }
-                operate = tmp=='+'?1:-1;
+                operate = tmp == '+' ? 1 : -1;
                 num = 0;
                 tNum = 1;
                 point = false;
-            }else if(tmp=='*'){
-                if(operate!=3&&operate!=-3){
+            } else if (tmp == '*') {
+                if (operate != 3 && operate != -3) {
                     tNum *= num;
-                }else{
+                } else {
                     tNum /= num;
                 }
-                operate = operate<0?-2:2;
+                operate = operate < 0 ? -2 : 2;
                 point = false;
                 num = 0;
-            }else if(tmp=='/'){
-                if(operate!=3&&operate!=-3){
+            } else if (tmp == '/') {
+                if (operate != 3 && operate != -3) {
                     tNum *= num;
-                }else{
+                } else {
                     tNum /= num;
                 }
-                operate = operate<0?-3:3;
+                operate = operate < 0 ? -3 : 3;
                 point = false;
                 num = 0;
-            }else{
+            } else {
                 //读取expression中的每个数字，doube型
-                if(!point){
-                    num = num*10+tmp-'0';
-                }else{
-                    num += (tmp-'0')*lowNum;
-                    lowNum*=0.1;
+                if (!point) {
+                    num = num * 10 + tmp - '0';
+                } else {
+                    num += (tmp - '0') * lowNum;
+                    lowNum *= 0.1;
                 }
             }
         }
         //循环遍历结束，计算最后一个运算符后面的数
-        if(operate!=3&&operate!=-3){
+        if (operate != 3 && operate != -3) {
             tNum *= num;
-        }else{
+        } else {
             tNum /= num;
         }
-        if(operate<0){
+        if (operate < 0) {
             result -= tNum;
-        }else{
+        } else {
             result += tNum;
         }
         //返回最后的结果
+
         return result;
 
     }
 }
+
+
+
+
+
+
