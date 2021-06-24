@@ -33,8 +33,8 @@ public class History extends AppCompatActivity {
     }
     private void initdata() {
         ArrayList<enity> enities = MainActivity.enities;
-        MyAdapter myAdapter = new MyAdapter(getApplicationContext(), enities);
-        history2.setAdapter(myAdapter);
+        MyAdapter myAdapter = new MyAdapter(getApplicationContext(), enities);//初始化适配器
+        history2.setAdapter(myAdapter);//绑定适配器
     }
 
 }

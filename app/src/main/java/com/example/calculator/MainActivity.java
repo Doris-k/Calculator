@@ -218,10 +218,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                ans.setText("");
 //            }
 //        });
-
-
-
-
         for (int i = 0; i < ids.length; i++) {
             buttons[i] = (Button) findViewById(ids[i]);
             buttons[i].setOnClickListener(this);
@@ -230,16 +226,84 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         enities = new ArrayList<>();
 
     }
+    //引用了CSDN-黄佩华-Android_计算器的实现
+    //计算逻辑，求formula表达式的值
+    private double count() {
+        double result = 0;
+        double tNum = 1, lowNum = 0.1, num = 0;
+        char tmp = 0;
+        int operate = 1; //识别+-*/，为+时为正数，为-时为负数，为×时为-2/2,为/时为3/-3;
+        boolean point = false;
+        for (int i = 0; i < formula.length(); i++) { //遍历表达式
+            tmp = formula.charAt(i);
+            if (tmp == '.') { //因为可能出现小数，此处进行判断是否有小数出现
+                point = true;
+                lowNum = 0.1;
+            } else if (tmp == '+' || tmp == '-') {
+                if (operate != 3 && operate != -3) { //此处判断通用，适用于+-*
+                    tNum *= num;
+                } else { //计算/
+                    tNum /= num;
+                }
+
+                if (operate < 0) { //累加入最终的结果
+                    result -= tNum;
+                } else {
+                    result += tNum;
+                }
+                operate = tmp == '+' ? 1 : -1;
+                num = 0;
+                tNum = 1;
+                point = false;
+            } else if (tmp == '*') {
+                if (operate != 3 && operate != -3) {
+                    tNum *= num;
+                } else {
+                    tNum /= num;
+                }
+                operate = operate < 0 ? -2 : 2;
+                point = false;
+                num = 0;
+            } else if (tmp == '/') {
+                if (operate != 3 && operate != -3) {
+                    tNum *= num;
+                } else {
+                    tNum /= num;
+                }
+                operate = operate < 0 ? -3 : 3;
+                point = false;
+                num = 0;
+            } else {
+                //读取formula中的每个数字，double型
+                if (!point) {
+                    num = num * 10 + tmp - '0';
+                } else {
+                    num += (tmp - '0') * lowNum;
+                    lowNum *= 0.1;
+                }
+            }
+        }
+        //循环遍历结束，计算最后一个运算符后面的数
+        if (operate != 3 && operate != -3) {
+            tNum *= num;
+        } else {
+            tNum /= num;
+        }
+        if (operate < 0) {
+            result -= tNum;
+        } else {
+            result += tNum;
+        }
+        //返回最后的结果
+        return result;
+
+    }
+
+
     //改进算法采用switch case，能够进行复杂运算
     //参考了CSDN-疯子侠-用Android实现计算器
-    //参考了CSDN-涂涂-ing-使用Android 实现计算器功能
-
-
-
     @Override
     public void onClick(View v) {
-
-
         int id = v.getId();
         Button button = (Button) v.findViewById(id);
         String current = button.getText().toString();
@@ -248,10 +312,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             end = false;
         }
         switch (current) {
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+                if (count == 0) {
+                    formula += current;
+                    count = 2;  //  +-*/按过之后赋值为2
+                }
+                break;
+
+            case ".":
+                if (formula.equals("") || count == 2) {
+                    formula += "0" + current;
+                    count = 1;  //小数点按过之后赋值为1
+                }
+                if (count == 0) {
+                    formula += ".";
+                    count = 1;
+                }
+                break;
+
+            case "=":  //按下=时，计算结果并显示
+                double result = (double) Math.round(count() * 100) / 100;
+                formula += "=" + result;
+                end = true; //此次计算结束
+                enities.add(new enity(ans.getText().toString()+"="+result));
+                //将计算式和结果放入enities中
+                break;
+
             case "clear":  //如果为clear则清零
                 formula = "";
                 count = 0;
                 break;
+
             case "BACK":  //如果点击退格
                 if (formula.length() > 1) { //算式长度大于1
                     formula = formula.substring(0, formula.length() - 1);//退一格
@@ -271,32 +365,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else if (formula.length() == 1) {
                     formula = "";
                 }
-                break;
-            case ".":
-                if (formula.equals("") || count == 2) {
-                    formula += "0" + current;
-                    count = 1;  //小数点按过之后赋值为1
-                }
-                if (count == 0) {
-                    formula += ".";
-                    count = 1;
-                }
-                break;
-            case "+":
-            case "-":
-            case "*":
-            case "/":
-                if (count == 0) {
-                    formula += current;
-                    count = 2;  //  +-*/按过之后赋值为2
-                }
-                break;
-            case "=":  //按下=时，计算结果并显示
-                double result = (double) Math.round(count() * 100) / 100;
-                formula += "=" + result;
-                end = true; //此次计算结束
-                enities.add(new enity(ans.getText().toString()+"="+result));
-
                 break;
 
             case "History":
@@ -329,78 +397,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    //计算逻辑，求expression表达式的值
-    private double count() {
-        double result = 0;
-        double tNum = 1, lowNum = 0.1, num = 0;
-        char tmp = 0;
-        int operate = 1; //识别+-*/，为+时为正数，为-时为负数，为×时为-2/2,为/时为3/-3;
-        boolean point = false;
-        for (int i = 0; i < formula.length(); i++) { //遍历表达式
-            tmp = formula.charAt(i);
-            if (tmp == '.') { //因为可能出现小数，此处进行判断是否有小数出现
-                point = true;
-                lowNum = 0.1;
-            } else if (tmp == '+' || tmp == '-') {
-                if (operate != 3 && operate != -3) { //此处判断通用，适用于+-*
-                    tNum *= num;
-                } else { //计算/
-                    tNum /= num;
-                }
-
-                if (operate < 0) { //最终的结果
-                    result -= tNum;
-                } else {
-                    result += tNum;
-                }
-                operate = tmp == '+' ? 1 : -1;
-                num = 0;
-                tNum = 1;
-                point = false;
-            } else if (tmp == '*') {
-                if (operate != 3 && operate != -3) {
-                    tNum *= num;
-                } else {
-                    tNum /= num;
-                }
-                operate = operate < 0 ? -2 : 2;
-                point = false;
-                num = 0;
-            } else if (tmp == '/') {
-                if (operate != 3 && operate != -3) {
-                    tNum *= num;
-                } else {
-                    tNum /= num;
-                }
-                operate = operate < 0 ? -3 : 3;
-                point = false;
-                num = 0;
-            } else {
-                //读取expression中的每个数字，doube型
-                if (!point) {
-                    num = num * 10 + tmp - '0';
-                } else {
-                    num += (tmp - '0') * lowNum;
-                    lowNum *= 0.1;
-                }
-            }
-        }
-        //循环遍历结束，计算最后一个运算符后面的数
-        if (operate != 3 && operate != -3) {
-            tNum *= num;
-        } else {
-            tNum /= num;
-        }
-        if (operate < 0) {
-            result -= tNum;
-        } else {
-            result += tNum;
-        }
-        //返回最后的结果
-
-        return result;
-
-    }
 }
 
 
