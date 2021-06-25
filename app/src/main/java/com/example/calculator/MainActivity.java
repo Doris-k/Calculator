@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView ans;
     private String formula = "";
     private boolean end = false;
-    private int count = 2;
+    private int count = 2;//记录当前输入操作符的数量，强制用户最初时只能输入数字，或者输入小数点前面自动补0
     public static ArrayList<enity> enities;
 
   
@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         enities = new ArrayList<>();
 
     }
-    //引用了CSDN-黄佩华-Android_计算器的实现
+    //引用了CSDN-我要出家当道士-Android-计算器的实现（界面布局，计算逻辑处理）
     //计算逻辑，求formula表达式的值
     private double count() {
         double result = 0;
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     //改进算法采用switch case，能够进行复杂运算
-    //参考了CSDN-疯子侠-用Android实现计算器
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
