@@ -16,7 +16,7 @@ public class MyAdapter extends BaseAdapter {
     public MyAdapter(Context context, ArrayList<enity> enities) {
         this.context = context;
         this.enities = enities;
-    }//参考了 CSDN-DimancheT-BaseAdapter
+    }
     @Override
     public int getCount() {
         return enities.size();

@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //计算逻辑，求formula表达式的值
     private double count() {
         double result = 0;
-        double tNum = 1, lowNum = 0.1, num = 0;
+        double tNum = 1, lowNum = 0.1, num = 0;//tNum是临时计算，lowNum是浮点数精度，num存放数字
         char tmp = 0;
         int operate = 1; //识别+-*/，为+时为正数，为-时为负数，为×时为-2/2,为/时为3/-3;
         boolean point = false;
@@ -276,9 +276,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 //读取formula中的每个数字，double型
                 if (!point) {
-                    num = num * 10 + tmp - '0';
+                    num = num * 10 + tmp - '0';//没有小数点  ASSCII码，0-48，1-49
                 } else {
-                    num += (tmp - '0') * lowNum;
+                    num += (tmp - '0') * lowNum;//有小数点
                     lowNum *= 0.1;
                 }
             }
